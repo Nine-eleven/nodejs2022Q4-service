@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Track } from '../../tracks/entities/track.entity';
 import { CreateTrackDto } from '../../tracks/dto/create-track.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../../users/entities/user.entity';
 import { UpdateTrackDto } from '../../tracks/dto/update-track.dto';
 import { FAVORITE_TYPE, RESPONSE_MESSAGE } from '../../../core/constants';
 import { NotFoundError } from '../../../core/errors/NotFoundError';
