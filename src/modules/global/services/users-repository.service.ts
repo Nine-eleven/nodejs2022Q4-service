@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { User } from '../../users/entities/user.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { RESPONSE_MESSAGE } from '../../../core/constants';
 
 @Injectable()
 export class UsersRepositoryService {
@@ -29,7 +30,7 @@ export class UsersRepositoryService {
       user.updatedAt = Date.now();
       return user;
     } else {
-      throw new Error('User not found');
+      throw new Error(RESPONSE_MESSAGE.USER_WITH_THIS_UUID_DOESNT_EXIST);
     }
   }
 
