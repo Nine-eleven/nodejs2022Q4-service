@@ -7,20 +7,24 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { catchError, Observable } from 'rxjs';
-import { RESPONSE_MESSAGE } from '../../../core/constants';
+import { RESPONSE_MESSAGE } from '../constants';
+
+const NOT_FOUND_MESSAGES = [
+  RESPONSE_MESSAGE.TRACK_WITH_THIS_UUID_DOESNT_EXIST,
+  RESPONSE_MESSAGE.USER_WITH_THIS_UUID_DOESNT_EXIST,
+  RESPONSE_MESSAGE.ARTIST_WITH_THIS_UUID_DOESNT_EXIST,
+];
 
 @Injectable()
-export class UserErrorInterceptor implements NestInterceptor {
+export class ErrorInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((err) => {
         if (
           err instanceof Error &&
-          err.message === RESPONSE_MESSAGE.USER_WITH_THIS_UUID_DOESNT_EXIST
+          NOT_FOUND_MESSAGES.some((message) => message === err.message)
         ) {
-          throw new NotFoundException(
-            RESPONSE_MESSAGE.USER_WITH_THIS_UUID_DOESNT_EXIST,
-          );
+          throw new NotFoundException(err.message);
         } else if (
           err instanceof Error &&
           err.message ===
