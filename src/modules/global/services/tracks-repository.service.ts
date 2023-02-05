@@ -4,11 +4,17 @@ import { CreateTrackDto } from '../../tracks/dto/create-track.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../../users/entities/user.entity';
 import { UpdateTrackDto } from '../../tracks/dto/update-track.dto';
-import { RESPONSE_MESSAGE } from '../../../core/constants';
+import { FAVORITE_TYPE, RESPONSE_MESSAGE } from '../../../core/constants';
+import { NotFoundError } from '../../../core/errors/NotFoundError';
+import { FavoritesRepositoryService } from './favorites-repository.service';
 
 @Injectable()
 export class TracksRepositoryService {
   private tracks: Track[] = [];
+
+  constructor(
+    private readonly favoritesRepository: FavoritesRepositoryService,
+  ) {}
 
   async create(createTrackDto: CreateTrackDto) {
     const newTrack = new Track({
@@ -29,7 +35,9 @@ export class TracksRepositoryService {
       });
       return track;
     } else {
-      throw new Error(RESPONSE_MESSAGE.TRACK_WITH_THIS_UUID_DOESNT_EXIST);
+      throw new NotFoundError(
+        RESPONSE_MESSAGE.TRACK_WITH_THIS_UUID_DOESNT_EXIST,
+      );
     }
   }
 
@@ -43,11 +51,13 @@ export class TracksRepositoryService {
 
   async remove(trackId: string) {
     this.tracks = this.tracks.filter((track) => track.id !== trackId);
+
+    await this.favoritesRepository.removeItem(trackId, FAVORITE_TYPE.TRACK);
   }
 
-  async removeArtistId(artistId: string) {
+  async resetField(id: string, fieldName: 'artistId' | 'albumId') {
     this.tracks = this.tracks.map((track) =>
-      track.artistId === artistId ? { ...track, artistId: null } : track,
+      track[fieldName] === id ? { ...track, [fieldName]: null } : track,
     );
   }
 }

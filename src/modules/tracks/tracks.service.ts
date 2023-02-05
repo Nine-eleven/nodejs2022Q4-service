@@ -3,6 +3,7 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { TracksRepositoryService } from '../global/services/tracks-repository.service';
 import { RESPONSE_MESSAGE } from '../../core/constants';
+import { NotFoundError } from '../../core/errors/NotFoundError';
 
 @Injectable()
 export class TracksService {
@@ -34,7 +35,9 @@ export class TracksService {
     const track = await this.tracksRepository.getById(id);
 
     if (!track) {
-      throw new Error(RESPONSE_MESSAGE.TRACK_WITH_THIS_UUID_DOESNT_EXIST);
+      throw new NotFoundError(
+        RESPONSE_MESSAGE.TRACK_WITH_THIS_UUID_DOESNT_EXIST,
+      );
     }
 
     return track;

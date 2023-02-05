@@ -3,16 +3,21 @@ import { Artist } from '../../artists/entities/artist.entity';
 import { CreateArtistDto } from '../../artists/dto/create-artist.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateTrackDto } from '../../tracks/dto/update-track.dto';
-import { RESPONSE_MESSAGE } from '../../../core/constants';
+import { FAVORITE_TYPE, RESPONSE_MESSAGE } from '../../../core/constants';
 import { UpdateArtistDto } from '../../artists/dto/update-artist.dto';
 import { Track } from '../../tracks/entities/track.entity';
 import { TracksRepositoryService } from './tracks-repository.service';
+import { NotFoundError } from '../../../core/errors/NotFoundError';
+import { FavoritesRepositoryService } from './favorites-repository.service';
 
 @Injectable()
 export class ArtistsRepositoryService {
   private artists: Artist[] = [];
 
-  constructor(private readonly tracksRepository: TracksRepositoryService) {}
+  constructor(
+    private readonly tracksRepository: TracksRepositoryService,
+    private readonly favoritesRepository: FavoritesRepositoryService,
+  ) {}
 
   async create(createArtistDto: CreateArtistDto) {
     const newArtist = new Artist({
@@ -33,7 +38,9 @@ export class ArtistsRepositoryService {
       });
       return artist;
     } else {
-      throw new Error(RESPONSE_MESSAGE.ARTIST_WITH_THIS_UUID_DOESNT_EXIST);
+      throw new NotFoundError(
+        RESPONSE_MESSAGE.ARTIST_WITH_THIS_UUID_DOESNT_EXIST,
+      );
     }
   }
 
@@ -47,6 +54,8 @@ export class ArtistsRepositoryService {
 
   async remove(artistId: string) {
     this.artists = this.artists.filter((artist) => artist.id !== artistId);
-    await this.tracksRepository.removeArtistId(artistId);
+
+    await this.tracksRepository.resetField(artistId, 'artistId');
+    await this.favoritesRepository.removeItem(artistId, FAVORITE_TYPE.ARTIST);
   }
 }

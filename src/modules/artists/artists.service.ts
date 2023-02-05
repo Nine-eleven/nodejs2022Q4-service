@@ -3,6 +3,7 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistsRepositoryService } from '../global/services/artists-repository.service';
 import { RESPONSE_MESSAGE } from '../../core/constants';
+import { NotFoundError } from '../../core/errors/NotFoundError';
 
 @Injectable()
 export class ArtistsService {
@@ -34,7 +35,9 @@ export class ArtistsService {
     const artist = await this.artistsRepository.getById(id);
 
     if (!artist) {
-      throw new Error(RESPONSE_MESSAGE.ARTIST_WITH_THIS_UUID_DOESNT_EXIST);
+      throw new NotFoundError(
+        RESPONSE_MESSAGE.ARTIST_WITH_THIS_UUID_DOESNT_EXIST,
+      );
     }
 
     return artist;
