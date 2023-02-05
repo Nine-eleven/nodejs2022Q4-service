@@ -17,7 +17,19 @@ export class FavoritesService {
   ) {}
 
   async findAll() {
-    return await this.favoriteRepository.getAll();
+    const favoritesIds = await this.favoriteRepository.getAll();
+
+    return {
+      artists: await Promise.all(
+        favoritesIds.artists.map((id) => this.artistsRepository.getById(id)),
+      ),
+      albums: await Promise.all(
+        favoritesIds.albums.map((id) => this.albumsRepository.getById(id)),
+      ),
+      tracks: await Promise.all(
+        favoritesIds.tracks.map((id) => this.tracksRepository.getById(id)),
+      ),
+    };
   }
 
   async add(id: string, type: FAVORITE_TYPE) {
@@ -54,40 +66,40 @@ export class FavoritesService {
   async remove(id: string, type: FAVORITE_TYPE) {
     switch (type) {
       case FAVORITE_TYPE.TRACK:
-        const track = await this.favoriteRepository.getItemById(
+        const trackId = await this.favoriteRepository.getItemById(
           id,
           FAVORITE_TYPE.TRACK,
         );
-        if (!track)
+        if (!trackId)
           throw new NotFoundError(
             RESPONSE_MESSAGE.TRACK_WITH_THIS_UUID_DOESNT_EXIST,
           );
-        await this.favoriteRepository.removeItem(track.id, FAVORITE_TYPE.TRACK);
+        await this.favoriteRepository.removeItem(trackId, FAVORITE_TYPE.TRACK);
         return RESPONSE_MESSAGE.TRACK_SUCCESSFULLY_REMOVED_FROM_FAVORITES;
       case FAVORITE_TYPE.ARTIST:
-        const artist = await this.favoriteRepository.getItemById(
+        const artistId = await this.favoriteRepository.getItemById(
           id,
           FAVORITE_TYPE.ARTIST,
         );
-        if (!artist)
+        if (!artistId)
           throw new NotFoundError(
             RESPONSE_MESSAGE.ARTIST_WITH_THIS_UUID_DOESNT_EXIST,
           );
         await this.favoriteRepository.removeItem(
-          artist.id,
+          artistId,
           FAVORITE_TYPE.ARTIST,
         );
         return RESPONSE_MESSAGE.ARTIST_SUCCESSFULLY_REMOVED_FROM_FAVORITES;
       case FAVORITE_TYPE.ALBUM:
-        const album = await this.favoriteRepository.getItemById(
+        const albumId = await this.favoriteRepository.getItemById(
           id,
           FAVORITE_TYPE.ALBUM,
         );
-        if (!album)
+        if (!albumId)
           throw new NotFoundError(
             RESPONSE_MESSAGE.ALBUM_WITH_THIS_UUID_DOESNT_EXIST,
           );
-        await this.favoriteRepository.removeItem(album.id, FAVORITE_TYPE.ALBUM);
+        await this.favoriteRepository.removeItem(albumId, FAVORITE_TYPE.ALBUM);
         return RESPONSE_MESSAGE.ALBUM_SUCCESSFULLY_REMOVED_FROM_FAVORITES;
       default:
         throw new Error();

@@ -6,9 +6,9 @@ import { FAVORITE_TYPE } from '../../../core/constants';
 
 @Injectable()
 export class FavoritesRepositoryService {
-  private tracks: Track[] = [];
-  private albums: Album[] = [];
-  private artists: Artist[] = [];
+  private tracks: string[] = [];
+  private albums: string[] = [];
+  private artists: string[] = [];
 
   async getAll() {
     return {
@@ -21,33 +21,33 @@ export class FavoritesRepositoryService {
   async getItemById(
     itemId: string,
     type: FAVORITE_TYPE,
-  ): Promise<Track | Artist | Album | undefined> {
+  ): Promise<string | undefined> {
     if (type === FAVORITE_TYPE.TRACK) {
-      return this.tracks.find((track) => track.id === itemId);
+      return this.tracks.find((trackId) => trackId === itemId);
     } else if (type === FAVORITE_TYPE.ARTIST) {
-      return this.artists.find((artist) => artist.id === itemId);
+      return this.artists.find((artistId) => artistId === itemId);
     } else if (type === FAVORITE_TYPE.ALBUM) {
-      return this.albums.find((album) => album.id === itemId);
+      return this.albums.find((albumId) => albumId === itemId);
     }
   }
 
   async addItem(item: Track | Artist | Album) {
     if (item instanceof Track) {
-      this.tracks.push(item);
+      this.tracks.push(item.id);
     } else if (item instanceof Artist) {
-      this.artists.push(item);
+      this.artists.push(item.id);
     } else if (item instanceof Album) {
-      this.albums.push(item);
+      this.albums.push(item.id);
     }
   }
 
   async removeItem(itemId: string, type: FAVORITE_TYPE) {
     if (type === FAVORITE_TYPE.TRACK) {
-      this.tracks = this.tracks.filter((track) => track.id !== itemId);
+      this.tracks = this.tracks.filter((trackId) => trackId !== itemId);
     } else if (type === FAVORITE_TYPE.ARTIST) {
-      this.artists = this.artists.filter((artist) => artist.id !== itemId);
+      this.artists = this.artists.filter((artistId) => artistId !== itemId);
     } else if (type === FAVORITE_TYPE.ALBUM) {
-      this.albums = this.albums.filter((album) => album.id !== itemId);
+      this.albums = this.albums.filter((albumId) => albumId !== itemId);
     }
   }
 }
