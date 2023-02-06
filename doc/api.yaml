@@ -30,6 +30,21 @@ components:
       required:
         - id
         - login
+        - version
+        - createdAt
+        - updatedAt
+    CreateUserDto:
+      type: object
+      properties:
+        login:
+          type: string
+          example: 'TestUser'
+        password:
+          type: string
+          example: '12345678'
+      required:
+        - password
+        - login
     Artist:
       type: object
       properties:
@@ -45,6 +60,7 @@ components:
       required:
         - id
         - name
+        - grammy
     Album:
       type: object
       properties:
@@ -64,6 +80,8 @@ components:
       required:
         - id
         - name
+        - year
+        - artistId
     Track:
       type: object
       properties:
@@ -88,6 +106,8 @@ components:
       required:
         - id
         - name
+        - artistId
+        - albumId
         - duration
     Favorites:
       type: object
@@ -104,6 +124,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Track'
+      required:
+        - artists
+        - albums
+        - tracks
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
@@ -142,18 +166,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              title: example
-              properties:
-                login:
-                  type: string
-                  description: The user's login
-                password:
-                  type: string
-                  description: The user's password
-              required:
-                - login
-                - password
+              $ref: '#/components/schemas/CreateUserDto'
       responses:
         201:
           description: The user has been created.
@@ -215,24 +228,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                title: example
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  login:
-                    type: string
-                    example: TestUser
-                  version:
-                    type: integer
-                    example: 2
-                  createdAt:
-                    type: integer
-                    example: 1655000000
-                  updatedAt:
-                    type: integer
-                    example: 1655999999
+                $ref: '#/components/schemas/User'
         400:
           description: Bad request. userId is invalid (not uuid)
         403:
@@ -354,36 +350,13 @@ paths:
                   type: string
                   format: uuid
                   nullable: true
-              required:
-                - name
-                - duration
       responses:
         200:
           description: The track has been updated.
           content:
             application/json:
               schema:
-                type: object
-                title: example
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  name:
-                    type: string
-                    example: Bohemian Rhapsody
-                  artistId:
-                    type: string
-                    format: uuid
-                    nullable: true
-                  duration:
-                    type: integer
-                    description: In seconds
-                    example: 355
-                  albumId:
-                    type: string
-                    format: uuid
-                    nullable: true
+                $ref: '#/components/schemas/Track'
         400:
           description: Bad request. trackId is invalid (not uuid)
         404:
@@ -493,9 +466,6 @@ paths:
                   type: string
                   format: uuid
                   nullable: true
-              required:
-                - name
-                - year
       responses:
         200:
           description: The album has been updated.
@@ -602,9 +572,6 @@ paths:
                   type: string
                 grammy:
                   type: boolean
-              required:
-                - name
-                - grammy
       responses:
         200:
           description: The artist has been updated.
